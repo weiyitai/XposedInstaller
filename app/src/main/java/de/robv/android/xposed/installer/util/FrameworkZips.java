@@ -87,6 +87,7 @@ public final class FrameworkZips {
         public String url;
         public boolean current = true;
 
+        @Override
         public boolean isOutdated() {
             return !current;
         }

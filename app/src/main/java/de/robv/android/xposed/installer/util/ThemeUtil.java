@@ -29,8 +29,9 @@ public final class ThemeUtil {
 
 	public static void reloadTheme(XposedBaseActivity activity) {
 		int theme = getSelectTheme();
-		if (theme != activity.mTheme)
+		if (theme != activity.mTheme) {
 			activity.recreate();
+		}
     }
 
     public static int getThemeColor(Context context, int id) {

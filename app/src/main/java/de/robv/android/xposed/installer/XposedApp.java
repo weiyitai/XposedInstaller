@@ -30,6 +30,7 @@ import de.robv.android.xposed.installer.util.NotificationUtil;
 import de.robv.android.xposed.installer.util.RepoLoader;
 
 public class XposedApp extends Application implements ActivityLifecycleCallbacks {
+
     public static final String TAG = "XposedInstaller";
 
     @SuppressLint("SdCardPath")
@@ -108,6 +109,7 @@ public class XposedApp extends Application implements ActivityLifecycleCallbacks
         return getPreferences().getString("download_location", Environment.getExternalStorageDirectory() + "/XposedInstaller");
     }
 
+    @Override
     public void onCreate() {
         super.onCreate();
         mInstance = this;
@@ -178,8 +180,9 @@ public class XposedApp extends Application implements ActivityLifecycleCallbacks
     // TODO find a better way to trigger actions only when any UI is shown for the first time
     @Override
     public synchronized void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-        if (mIsUiLoaded)
+        if (mIsUiLoaded) {
             return;
+        }
 
         RepoLoader.getInstance().triggerFirstLoadIfNecessary();
         mIsUiLoaded = true;
@@ -207,5 +210,10 @@ public class XposedApp extends Application implements ActivityLifecycleCallbacks
 
     @Override
     public void onActivityDestroyed(Activity activity) {
+    }
+
+    public static boolean isXposedActive() {
+        int version = getActiveXposedVersion();
+        return version > 0 && getInstalledXposedVersion() == version;
     }
 }

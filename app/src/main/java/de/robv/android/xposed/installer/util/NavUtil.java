@@ -21,8 +21,9 @@ import de.robv.android.xposed.installer.XposedApp;
 public final class NavUtil {
 
     public static Uri parseURL(String str) {
-        if (str == null || str.isEmpty())
+        if (str == null || str.isEmpty()) {
             return null;
+        }
 
         Spannable spannable = new SpannableString(str);
         Linkify.addLinks(spannable, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);

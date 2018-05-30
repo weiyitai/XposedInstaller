@@ -328,8 +328,9 @@ public class DownloadsUtil {
 
         List<DownloadInfo> downloads = new ArrayList<>();
         while (c.moveToNext()) {
-            if (!url.equals(c.getString(columnUri)))
+            if (!url.equals(c.getString(columnUri))) {
                 continue;
+            }
 
             int status = c.getInt(columnStatus);
             String localFilename = getFilenameFromUri(c.getString(columnLocalUri));
@@ -363,17 +364,20 @@ public class DownloadsUtil {
 
         List<Long> idsList = new ArrayList<>(1);
         while (c.moveToNext()) {
-            if (url.equals(c.getString(columnUri)))
+            if (url.equals(c.getString(columnUri))) {
                 idsList.add(c.getLong(columnId));
+            }
         }
         c.close();
 
-        if (idsList.isEmpty())
+        if (idsList.isEmpty()) {
             return;
+        }
 
         long ids[] = new long[idsList.size()];
-        for (int i = 0; i < ids.length; i++)
+        for (int i = 0; i < ids.length; i++) {
             ids[i] = idsList.get(i);
+        }
 
         dm.remove(ids);
     }
@@ -412,12 +416,14 @@ public class DownloadsUtil {
         }
         c.close();
 
-        if (idsList.isEmpty())
+        if (idsList.isEmpty()) {
             return;
+        }
 
         long ids[] = new long[idsList.size()];
-        for (int i = 0; i < ids.length; i++)
+        for (int i = 0; i < ids.length; i++) {
             ids[i] = idsList.get(i);
+        }
 
         dm.remove(ids);
     }
@@ -431,33 +437,38 @@ public class DownloadsUtil {
 
         List<Long> idsList = new ArrayList<>();
         while (c.moveToNext()) {
-            if (c.getLong(columnLastMod) < cutoff)
+            if (c.getLong(columnLastMod) < cutoff) {
                 idsList.add(c.getLong(columnId));
+            }
         }
         c.close();
 
-        if (idsList.isEmpty())
+        if (idsList.isEmpty()) {
             return;
+        }
 
         long ids[] = new long[idsList.size()];
-        for (int i = 0; i < ids.length; i++)
+        for (int i = 0; i < ids.length; i++) {
             ids[i] = idsList.get(0);
+        }
 
         dm.remove(ids);
     }
 
     public static void triggerDownloadFinishedCallback(Context context, long id) {
         DownloadInfo info = getById(context, id);
-        if (info == null || info.status != DownloadManager.STATUS_SUCCESSFUL)
+        if (info == null || info.status != DownloadManager.STATUS_SUCCESSFUL) {
             return;
+        }
 
         DownloadFinishedCallback callback;
         synchronized (mCallbacks) {
             callback = mCallbacks.get(info.url);
         }
 
-        if (callback == null)
+        if (callback == null) {
             return;
+        }
 
         // Hack to reset stat information.
         new File(info.localFilename).setExecutable(false);
@@ -560,18 +571,21 @@ public class DownloadsUtil {
                             t.getMessage()));
 
         } finally {
-            if (connection != null && connection instanceof HttpURLConnection)
+            if (connection != null && connection instanceof HttpURLConnection) {
                 ((HttpURLConnection) connection).disconnect();
-            if (in != null)
+            }
+            if (in != null) {
                 try {
                     in.close();
                 } catch (IOException ignored) {
                 }
-            if (out != null)
+            }
+            if (out != null) {
                 try {
                     out.close();
                 } catch (IOException ignored) {
                 }
+            }
         }
     }
 
@@ -586,19 +600,23 @@ public class DownloadsUtil {
 
     public enum MIME_TYPES {
         APK {
+            @Override
             public String toString() {
                 return MIME_TYPE_APK;
             }
 
+            @Override
             public String getExtension() {
                 return ".apk";
             }
         },
         ZIP {
+            @Override
             public String toString() {
                 return MIME_TYPE_ZIP;
             }
 
+            @Override
             public String getExtension() {
                 return ".zip";
             }
@@ -640,8 +658,9 @@ public class DownloadsUtil {
         public int compareTo(@NonNull DownloadInfo another) {
             int compare = (int) (another.lastModification
                     - this.lastModification);
-            if (compare != 0)
+            if (compare != 0) {
                 return compare;
+            }
             return this.url.compareTo(another.url);
         }
     }

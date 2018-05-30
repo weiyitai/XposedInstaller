@@ -121,8 +121,9 @@ public final class RepoDb extends SQLiteOpenHelper {
     }
 
     public static void deleteRepositories() {
-        if (sDb != null)
+        if (sDb != null) {
             sDb.delete(RepositoriesColumns.TABLE_NAME, null, null);
+        }
     }
 
     public static Map<Long, Repository> getRepositories() {

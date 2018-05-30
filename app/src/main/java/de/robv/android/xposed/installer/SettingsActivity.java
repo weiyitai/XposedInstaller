@@ -128,7 +128,9 @@ public class SettingsActivity extends XposedBaseActivity implements FolderChoose
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            if (key.equals("theme")) getActivity().recreate();
+            if (key.equals("theme")) {
+                getActivity().recreate();
+            }
         }
 
         @Override
@@ -149,7 +151,9 @@ public class SettingsActivity extends XposedBaseActivity implements FolderChoose
         }
 
         private boolean checkPermissions() {
-            if (Build.VERSION.SDK_INT < 23) return false;
+            if (Build.VERSION.SDK_INT < 23) {
+                return false;
+            }
 
             if (ActivityCompat.checkSelfPermission(getContext(),
                     Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {

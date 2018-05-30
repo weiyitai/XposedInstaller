@@ -17,6 +17,7 @@ import de.robv.android.xposed.installer.util.DownloadsUtil.DownloadFinishedCallb
 import de.robv.android.xposed.installer.util.DownloadsUtil.DownloadInfo;
 
 public class DownloadView extends LinearLayout {
+
     public static String mClickedUrl;
     private final Button btnDownload;
     private final Button btnDownloadCancel;
@@ -84,6 +85,8 @@ public class DownloadView extends LinearLayout {
                         txtInfo.setVisibility(View.VISIBLE);
                         txtInfo.setText(R.string.download_view_successful);
                         break;
+                    default:
+                        break;
                 }
             }
         }
@@ -109,16 +112,18 @@ public class DownloadView extends LinearLayout {
                 mInfo = DownloadsUtil.addModule(getContext(), mTitle, mUrl, mCallback);
                 refreshViewFromUiThread();
 
-                if (mInfo != null)
+                if (mInfo != null) {
                     new DownloadMonitor().start();
+                }
             }
         });
 
         btnDownloadCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mInfo == null)
+                if (mInfo == null) {
                     return;
+                }
 
                 DownloadsUtil.removeById(getContext(), mInfo.id);
                 // UI update will happen automatically by the DownloadMonitor
@@ -128,8 +133,9 @@ public class DownloadView extends LinearLayout {
         btnInstall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mCallback == null)
+                if (mCallback == null) {
                     return;
+                }
 
                 mCallback.onDownloadFinished(getContext(), mInfo);
             }
@@ -156,10 +162,11 @@ public class DownloadView extends LinearLayout {
     public void setUrl(String url) {
         mUrl = url;
 
-        if (mUrl != null)
+        if (mUrl != null) {
             mInfo = DownloadsUtil.getLatestForUrl(getContext(), mUrl);
-        else
+        } else {
             mInfo = null;
+        }
 
         refreshView();
     }
@@ -181,6 +188,7 @@ public class DownloadView extends LinearLayout {
     }
 
     private class DownloadMonitor extends Thread {
+
         public DownloadMonitor() {
             super("DownloadMonitor");
         }
@@ -200,13 +208,15 @@ public class DownloadView extends LinearLayout {
                 }
 
                 refreshView();
-                if (mInfo == null)
+                if (mInfo == null) {
                     return;
+                }
 
                 if (mInfo.status != DownloadManager.STATUS_PENDING
                         && mInfo.status != DownloadManager.STATUS_PAUSED
-                        && mInfo.status != DownloadManager.STATUS_RUNNING)
+                        && mInfo.status != DownloadManager.STATUS_RUNNING) {
                     return;
+                }
             }
         }
     }

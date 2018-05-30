@@ -48,8 +48,9 @@ public class DownloadDetailsVersionsFragment extends ListFragment {
         super.onActivityCreated(savedInstanceState);
 
         module = mActivity.getModule();
-        if (module == null)
+        if (module == null) {
             return;
+        }
 
         if (module.versions.isEmpty()) {
             setEmptyText(getString(R.string.download_no_versions));
@@ -71,8 +72,9 @@ public class DownloadDetailsVersionsFragment extends ListFragment {
 
             sAdapter = new VersionsAdapter(mActivity, mActivity.getInstalledModule());
             for (ModuleVersion version : module.versions) {
-                if (repoLoader.isVersionShown(version))
+                if (repoLoader.isVersionShown(version)) {
                     sAdapter.add(version);
+                }
             }
             setListAdapter(sAdapter);
         }
@@ -113,8 +115,9 @@ public class DownloadDetailsVersionsFragment extends ListFragment {
         public void onDownloadFinished(Context context,
                                        DownloadsUtil.DownloadInfo info) {
             File localFile = new File(info.localFilename);
-            if (!localFile.isFile())
+            if (!localFile.isFile()) {
                 return;
+            }
 
             if (moduleVersion.md5sum != null && !moduleVersion.md5sum.isEmpty()) {
                 try {

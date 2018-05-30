@@ -89,8 +89,9 @@ public class ModulesBookmark extends XposedBaseActivity {
         public void onResume() {
             super.onResume();
 
-            if (changed)
+            if (changed) {
                 getModules();
+            }
         }
 
         @Override
@@ -126,7 +127,9 @@ public class ModulesBookmark extends XposedBaseActivity {
 
                 if (isBookmarked) {
                     Module m = mRepoLoader.getModule(s);
-                    if (m != null) mBookmarkedModules.add(m);
+                    if (m != null) {
+                        mBookmarkedModules.add(m);
+                    }
                 }
             }
             Collections.sort(mBookmarkedModules, new Comparator<Module>() {
@@ -160,8 +163,9 @@ public class ModulesBookmark extends XposedBaseActivity {
         @Override
         public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
             Module module = getItemFromContextMenuInfo(menuInfo);
-            if (module == null)
+            if (module == null) {
                 return;
+            }
 
             menu.setHeaderTitle(module.name);
             getActivity().getMenuInflater().inflate(R.menu.context_menu_modules_bookmark, menu);
@@ -171,14 +175,16 @@ public class ModulesBookmark extends XposedBaseActivity {
         public boolean onContextItemSelected(MenuItem item) {
             final Module module = getItemFromContextMenuInfo(
                     item.getMenuInfo());
-            if (module == null)
+            if (module == null) {
                 return false;
+            }
 
             final String pkg = module.packageName;
             ModuleVersion mv = DownloadsUtil.getStableVersion(module);
 
-            if (mv == null)
+            if (mv == null) {
                 return false;
+            }
 
             mClickedMenuItem = item;
 
@@ -197,6 +203,8 @@ public class ModulesBookmark extends XposedBaseActivity {
                     break;
                 case R.id.remove:
                     remove(pkg);
+                    break;
+                default:
                     break;
             }
 
@@ -225,7 +233,9 @@ public class ModulesBookmark extends XposedBaseActivity {
         }
     }
 
+
     private static class BookmarkModuleAdapter extends ArrayAdapter<Module> {
+
         public BookmarkModuleAdapter(Context context) {
             super(context, R.layout.list_item_module, R.id.title);
         }

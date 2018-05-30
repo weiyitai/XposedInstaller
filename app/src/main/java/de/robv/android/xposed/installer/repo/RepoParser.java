@@ -27,6 +27,7 @@ import java.io.InputStream;
 import de.robv.android.xposed.installer.R;
 
 public class RepoParser {
+
     public final static String TAG = "XposedRepoParser";
     protected final static String NS = null;
     protected final XmlPullParser parser;
@@ -67,15 +68,17 @@ public class RepoParser {
         int len = html.length();
         int end = len;
         for (int i = len - 1; i >= 0; i--) {
-            if (html.charAt(i) != '\n')
+            if (html.charAt(i) != '\n') {
                 break;
+            }
             end = i;
         }
 
-        if (end == len)
+        if (end == len) {
             return html;
-        else
+        } else {
             return new SpannableStringBuilder(html, 0, end);
+        }
     }
 
     protected void readRepo() throws XmlPullParserException, IOException {
@@ -94,14 +97,16 @@ public class RepoParser {
                 case "module":
                     triggerRepoEvent(repository);
                     Module module = readModule(repository);
-                    if (module != null)
+                    if (module != null) {
                         mCallback.onNewModule(module);
+                    }
                     break;
                 case "remove-module":
                     triggerRepoEvent(repository);
                     String packageName = readRemoveModule();
-                    if (packageName != null)
+                    if (packageName != null) {
                         mCallback.onRemoveModule(packageName);
+                    }
                     break;
                 default:
                     skip(true);
@@ -113,8 +118,9 @@ public class RepoParser {
     }
 
     private void triggerRepoEvent(Repository repository) {
-        if (mRepoEventTriggered)
+        if (mRepoEventTriggered) {
             return;
+        }
 
         mCallback.onRepositoryMetadata(repository);
         mRepoEventTriggered = true;
@@ -149,8 +155,9 @@ public class RepoParser {
                     break;
                 case "description":
                     String isHtml = parser.getAttributeValue(NS, "html");
-                    if (isHtml != null && isHtml.equals("true"))
+                    if (isHtml != null && isHtml.equals("true")) {
                         module.descriptionIsHtml = true;
+                    }
                     module.description = parser.nextText();
                     break;
                 case "screenshot":
@@ -162,13 +169,15 @@ public class RepoParser {
                     String value = parser.nextText();
                     module.moreInfo.add(new Pair<>(label, value));
 
-                    if (role != null && role.contains("support"))
+                    if (role != null && role.contains("support")) {
                         module.support = value;
+                    }
                     break;
                 case "version":
                     ModuleVersion version = readModuleVersion(module);
-                    if (version != null)
+                    if (version != null) {
                         module.versions.add(version);
+                    }
                     break;
                 default:
                     skip(true);
@@ -186,8 +195,9 @@ public class RepoParser {
 
     private long parseTimestamp(String attName) {
         String value = parser.getAttributeValue(NS, attName);
-        if (value == null)
+        if (value == null) {
             return -1;
+        }
         try {
             return Long.parseLong(value) * 1000L;
         } catch (NumberFormatException ex) {
@@ -228,8 +238,9 @@ public class RepoParser {
                     break;
                 case "changelog":
                     String isHtml = parser.getAttributeValue(NS, "html");
-                    if (isHtml != null && isHtml.equals("true"))
+                    if (isHtml != null && isHtml.equals("true")) {
                         version.changelogIsHtml = true;
+                    }
                     version.changelog = parser.nextText();
                     break;
                 case "branch":
@@ -261,8 +272,9 @@ public class RepoParser {
 
     protected void skip(boolean showWarning) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, null, null);
-        if (showWarning)
+        if (showWarning) {
             Log.w(TAG, "skipping unknown/erronous tag: " + parser.getPositionDescription());
+        }
         int level = 1;
         while (level > 0) {
             int eventType = parser.next();
@@ -289,13 +301,16 @@ public class RepoParser {
     }
 
     public interface RepoParserCallback {
+
         void onRepositoryMetadata(Repository repository);
         void onNewModule(Module module);
         void onRemoveModule(String packageName);
         void onCompleted(Repository repository);
     }
 
+
     static class ImageGetterAsyncTask extends AsyncTask<TextView, Void, Bitmap> {
+
         private LevelListDrawable levelListDrawable;
         private Context context;
         private String source;
@@ -324,7 +339,9 @@ public class RepoParser {
                 Point size = new Point();
                 ((Activity) context).getWindowManager().getDefaultDisplay().getSize(size);
                 int multiplier = size.x / bitmap.getWidth();
-                if (multiplier <= 0) multiplier = 1;
+                if (multiplier <= 0) {
+                    multiplier = 1;
+                }
                 levelListDrawable.addLevel(1, 1, d);
                 levelListDrawable.setBounds(0, 0, bitmap.getWidth() * multiplier, bitmap.getHeight() * multiplier);
                 levelListDrawable.setLevel(1);

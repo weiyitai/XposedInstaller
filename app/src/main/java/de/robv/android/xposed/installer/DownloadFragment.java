@@ -128,8 +128,9 @@ public class DownloadFragment extends Fragment implements Loader.Listener<RepoLo
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 // Expand the search view when the SEARCH key is triggered
                 if (keyCode == KeyEvent.KEYCODE_SEARCH && event.getAction() == KeyEvent.ACTION_UP && (event.getFlags() & KeyEvent.FLAG_CANCELED) == 0) {
-                    if (mSearchView != null)
+                    if (mSearchView != null) {
                         mSearchView.setIconified(false);
+                    }
                     return true;
                 }
                 return false;
@@ -287,23 +288,28 @@ public class DownloadFragment extends Fragment implements Loader.Listener<RepoLo
                 long timestamp = (mSortingOrder == RepoDb.SORT_UPDATED) ? updated : created;
                 long age = System.currentTimeMillis() - timestamp;
                 final long mSecsPerDay = 24 * 60 * 60 * 1000L;
-                if (age < mSecsPerDay)
+                if (age < mSecsPerDay) {
                     return 0;
-                if (age < 7 * mSecsPerDay)
+                }
+                if (age < 7 * mSecsPerDay) {
                     return 1;
-                if (age < 30 * mSecsPerDay)
+                }
+                if (age < 30 * mSecsPerDay) {
                     return 2;
+                }
                 return 3;
             } else {
-                if (isFramework)
+                if (isFramework) {
                     return 0;
+                }
 
-                if (hasUpdate)
+                if (hasUpdate) {
                     return 1;
-                else if (isInstalled)
+                } else if (isInstalled) {
                     return 2;
-                else
+                } else {
                     return 3;
+                }
             }
         }
 

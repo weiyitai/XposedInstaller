@@ -35,6 +35,7 @@ public abstract class Loader<T> implements SwipeRefreshLayout.OnRefreshListener 
         }
 
         new Thread("Reload" + CLASS_NAME) {
+            @Override
             public void run() {
                 boolean hasChanged = onReload();
                 if (hasChanged) {

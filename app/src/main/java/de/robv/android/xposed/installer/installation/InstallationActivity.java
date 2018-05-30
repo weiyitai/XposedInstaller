@@ -258,6 +258,7 @@ public class InstallationActivity extends XposedBaseActivity {
                     countdownButton.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                         private int minWidth = 0;
 
+                        @SuppressLint("StringFormatMatches")
                         @Override
                         public void onAnimationUpdate(ValueAnimator animation) {
                             mBtnReboot.setText(String.format(format, action, animation.getAnimatedValue()));

@@ -16,6 +16,7 @@ import java.util.List;
  * Helper class for Custom Tabs.
  */
 public class CustomTabsHelper {
+
     static final String STABLE_PACKAGE = "com.android.chrome";
     static final String BETA_PACKAGE = "com.chrome.beta";
     static final String DEV_PACKAGE = "com.chrome.dev";
@@ -41,8 +42,9 @@ public class CustomTabsHelper {
      * related components.
      */
     public static String getPackageNameToUse(Context context) {
-        if (sPackageNameToUse != null)
+        if (sPackageNameToUse != null) {
             return sPackageNameToUse;
+        }
 
         PackageManager pm = context.getPackageManager();
         // Get default VIEW intent handler.
@@ -104,12 +106,15 @@ public class CustomTabsHelper {
             }
             for (ResolveInfo resolveInfo : handlers) {
                 IntentFilter filter = resolveInfo.filter;
-                if (filter == null)
+                if (filter == null) {
                     continue;
-                if (filter.countDataAuthorities() == 0 || filter.countDataPaths() == 0)
+                }
+                if (filter.countDataAuthorities() == 0 || filter.countDataPaths() == 0) {
                     continue;
-                if (resolveInfo.activityInfo == null)
+                }
+                if (resolveInfo.activityInfo == null) {
                     continue;
+                }
                 return true;
             }
         } catch (RuntimeException e) {
@@ -120,7 +125,7 @@ public class CustomTabsHelper {
 
     /**
      * @return All possible chrome package names that provide custom tabs
-     *         feature.
+     * feature.
      */
     public static String[] getPackages() {
         return new String[]{"", STABLE_PACKAGE, BETA_PACKAGE, DEV_PACKAGE, LOCAL_PACKAGE};

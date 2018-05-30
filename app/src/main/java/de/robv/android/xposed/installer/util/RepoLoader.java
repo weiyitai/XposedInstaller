@@ -50,8 +50,9 @@ public class RepoLoader extends OnlineLoader<RepoLoader> {
     }
 
     public static synchronized RepoLoader getInstance() {
-        if (mInstance == null)
+        if (mInstance == null) {
             new RepoLoader();
+        }
         return mInstance;
     }
 
@@ -74,8 +75,9 @@ public class RepoLoader extends OnlineLoader<RepoLoader> {
             }
         }
 
-        if (!needReload)
+        if (!needReload) {
             return false;
+        }
 
         clear(false);
         for (String url : config) {
@@ -87,8 +89,9 @@ public class RepoLoader extends OnlineLoader<RepoLoader> {
 
     public void setReleaseTypeGlobal(String relTypeString) {
         ReleaseType relType = ReleaseType.fromString(relTypeString);
-        if (mGlobalReleaseType == relType)
+        if (mGlobalReleaseType == relType) {
             return;
+        }
 
         mGlobalReleaseType = relType;
 
@@ -105,8 +108,9 @@ public class RepoLoader extends OnlineLoader<RepoLoader> {
     public void setReleaseTypeLocal(String packageName, String relTypeString) {
         ReleaseType relType = (!TextUtils.isEmpty(relTypeString)) ? ReleaseType.fromString(relTypeString) : null;
 
-        if (getReleaseTypeLocal(packageName) == relType)
+        if (getReleaseTypeLocal(packageName) == relType) {
             return;
+        }
 
         synchronized (mLocalReleaseTypesCache) {
             mLocalReleaseTypesCache.put(packageName, relType);
@@ -118,8 +122,9 @@ public class RepoLoader extends OnlineLoader<RepoLoader> {
 
     private ReleaseType getReleaseTypeLocal(String packageName) {
         synchronized (mLocalReleaseTypesCache) {
-            if (mLocalReleaseTypesCache.containsKey(packageName))
+            if (mLocalReleaseTypesCache.containsKey(packageName)) {
                 return mLocalReleaseTypesCache.get(packageName);
+            }
 
             String value = mModulePref.getString(packageName + "_release_type",
                     null);
@@ -138,12 +143,14 @@ public class RepoLoader extends OnlineLoader<RepoLoader> {
     }
 
     public ModuleVersion getLatestVersion(Module module) {
-        if (module == null || module.versions.isEmpty())
+        if (module == null || module.versions.isEmpty()) {
             return null;
+        }
 
         for (ModuleVersion version : module.versions) {
-            if (version.downloadLink != null && isVersionShown(version))
+            if (version.downloadLink != null && isVersionShown(version)) {
                 return version;
+            }
         }
         return null;
     }
@@ -155,10 +162,11 @@ public class RepoLoader extends OnlineLoader<RepoLoader> {
 
     public ReleaseType getMaxShownReleaseType(String packageName) {
         ReleaseType localSetting = getReleaseTypeLocal(packageName);
-        if (localSetting != null)
+        if (localSetting != null) {
             return localSetting;
-        else
+        } else {
             return mGlobalReleaseType;
+        }
     }
 
     @Override
@@ -172,13 +180,15 @@ public class RepoLoader extends OnlineLoader<RepoLoader> {
     public void setRepositories(String... repos) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < repos.length; i++) {
-            if (i > 0)
+            if (i > 0) {
                 sb.append("|");
+            }
             sb.append(repos[i]);
         }
         mPref.edit().putString("repositories", sb.toString()).apply();
-        if (refreshRepositories())
+        if (refreshRepositories()) {
             triggerReload(true);
+        }
     }
 
     public boolean hasModuleUpdates() {
@@ -191,8 +201,9 @@ public class RepoLoader extends OnlineLoader<RepoLoader> {
 
     private File getRepoCacheFile(String repo) {
         String filename = "repo_" + HashUtil.md5(repo) + ".xml";
-        if (repo.endsWith(".gz"))
+        if (repo.endsWith(".gz")) {
             filename += ".gz";
+        }
         return new File(sApp.getCacheDir(), filename);
     }
 
@@ -203,6 +214,7 @@ public class RepoLoader extends OnlineLoader<RepoLoader> {
         boolean hasChanged = downloadAndParseFiles(messages);
         if (!messages.isEmpty()) {
             XposedApp.runOnUiThread(new Runnable() {
+                @Override
                 public void run() {
                     for (String message : messages) {
                         Toast.makeText(sApp, message, Toast.LENGTH_LONG).show();
@@ -235,8 +247,9 @@ public class RepoLoader extends OnlineLoader<RepoLoader> {
                     url, info.status, info.errorMessage, cacheFile.length()));
 
             if (info.status != SyncDownloadInfo.STATUS_SUCCESS) {
-                if (info.errorMessage != null)
+                if (info.errorMessage != null) {
                     messages.add(info.errorMessage);
+                }
                 continue;
             }
 
@@ -244,8 +257,9 @@ public class RepoLoader extends OnlineLoader<RepoLoader> {
             RepoDb.beginTransation();
             try {
                 in = new FileInputStream(cacheFile);
-                if (url.endsWith(".gz"))
+                if (url.endsWith(".gz")) {
                     in = new GZIPInputStream(in);
+                }
 
                 RepoParser.parse(in, new RepoParserCallback() {
                     @Override
@@ -295,11 +309,12 @@ public class RepoLoader extends OnlineLoader<RepoLoader> {
                 messages.add(sApp.getString(R.string.repo_load_failed, url, t.getMessage()));
                 DownloadsUtil.clearCache(url);
             } finally {
-                if (in != null)
+                if (in != null) {
                     try {
                         in.close();
                     } catch (IOException ignored) {
                     }
+                }
                 cacheFile.delete();
                 RepoDb.endTransation();
             }

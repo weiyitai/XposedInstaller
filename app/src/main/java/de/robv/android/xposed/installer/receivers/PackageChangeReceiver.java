@@ -10,6 +10,7 @@ import de.robv.android.xposed.installer.util.ModuleUtil.InstalledModule;
 import de.robv.android.xposed.installer.util.NotificationUtil;
 
 public class PackageChangeReceiver extends BroadcastReceiver {
+
     private final static ModuleUtil mModuleUtil = ModuleUtil.getInstance();
 
     private static String getPackageName(Intent intent) {
@@ -19,13 +20,15 @@ public class PackageChangeReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(final Context context, final Intent intent) {
-        if (intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED) && intent.getBooleanExtra(Intent.EXTRA_REPLACING, false))
-            // Ignore existing packages being removed in order to be updated
+        // Ignore existing packages being removed in order to be updated
+        if (intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED) && intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
             return;
+        }
 
         String packageName = getPackageName(intent);
-        if (packageName == null)
+        if (packageName == null) {
             return;
+        }
 
         if (intent.getAction().equals(Intent.ACTION_PACKAGE_CHANGED)) {
             // make sure that the change is for the complete package, not only a
@@ -39,8 +42,9 @@ public class PackageChangeReceiver extends BroadcastReceiver {
                         break;
                     }
                 }
-                if (!isForPackage)
+                if (!isForPackage) {
                     return;
+                }
             }
         }
 

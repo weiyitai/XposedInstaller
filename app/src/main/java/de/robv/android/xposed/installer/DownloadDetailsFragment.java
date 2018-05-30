@@ -28,8 +28,9 @@ public class DownloadDetailsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final Module module = mActivity.getModule();
-        if (module == null)
+        if (module == null) {
             return null;
+        }
 
         final View view = inflater.inflate(R.layout.download_details, container, false);
 
@@ -37,10 +38,11 @@ public class DownloadDetailsFragment extends Fragment {
         title.setText(module.name);
 
         TextView author = (TextView) view.findViewById(R.id.download_author);
-        if (module.author != null && !module.author.isEmpty())
+        if (module.author != null && !module.author.isEmpty()) {
             author.setText(getString(R.string.download_author, module.author));
-        else
+        } else {
             author.setText(R.string.download_unknown_author);
+        }
 
         TextView description = (TextView) view
                 .findViewById(R.id.download_description);

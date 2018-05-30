@@ -28,6 +28,7 @@ import de.robv.android.xposed.installer.repo.ModuleVersion;
 import de.robv.android.xposed.installer.repo.RepoDb;
 
 public final class ModuleUtil {
+
     // xposedminversion below this
     private static final String MODULES_LIST_FILE = XposedApp.BASE_DIR + "conf/modules.list";
     private static final String PLAY_STORE_PACKAGE = "com.android.vending";
@@ -62,18 +63,20 @@ public final class ModuleUtil {
         int result = 0, length = str.length();
         for (int offset = 0; offset < length; offset++) {
             char c = str.charAt(offset);
-            if ('0' <= c && c <= '9')
+            if ('0' <= c && c <= '9') {
                 result = result * 10 + (c - '0');
-            else
+            } else {
                 break;
+            }
         }
         return result;
     }
 
     public void reloadInstalledModules() {
         synchronized (this) {
-            if (mIsReloading)
+            if (mIsReloading) {
                 return;
+            }
             mIsReloading = true;
         }
 
@@ -84,8 +87,9 @@ public final class ModuleUtil {
 
             for (PackageInfo pkg : mPm.getInstalledPackages(PackageManager.GET_META_DATA)) {
                 ApplicationInfo app = pkg.applicationInfo;
-                if (!app.enabled)
+                if (!app.enabled) {
                     continue;
+                }
 
                 InstalledModule installed = null;
                 if (app.metaData != null && app.metaData.containsKey("xposedmodule")) {
@@ -95,8 +99,9 @@ public final class ModuleUtil {
                     mFramework = installed = new InstalledModule(pkg, true);
                 }
 
-                if (installed != null)
+                if (installed != null) {
                     RepoDb.insertInstalledModule(installed);
+                }
             }
 
             RepoDb.setTransactionSuccessful();
@@ -172,10 +177,11 @@ public final class ModuleUtil {
     }
 
     public void setModuleEnabled(String packageName, boolean enabled) {
-        if (enabled)
+        if (enabled) {
             mPref.edit().putInt(packageName, 1).apply();
-        else
+        } else {
             mPref.edit().remove(packageName).apply();
+        }
     }
 
     public boolean isModuleEnabled(String packageName) {
@@ -187,10 +193,11 @@ public final class ModuleUtil {
 
         for (String packageName : mPref.getAll().keySet()) {
             InstalledModule module = getModule(packageName);
-            if (module != null)
+            if (module != null) {
                 result.add(module);
-            else
+            } else {
                 setModuleEnabled(packageName, false);
+            }
         }
 
         return result;
@@ -206,8 +213,9 @@ public final class ModuleUtil {
 
             List<InstalledModule> enabledModules = getEnabledModules();
             for (InstalledModule module : enabledModules) {
-                if (module.minVersion > installedXposedVersion || module.minVersion < MIN_MODULE_VERSION)
+                if (module.minVersion > installedXposedVersion || module.minVersion < MIN_MODULE_VERSION) {
                     continue;
+                }
 
                 modulesList.println(module.app.sourceDir);
                 try {
@@ -226,8 +234,9 @@ public final class ModuleUtil {
             FileUtils.setPermissions(MODULES_LIST_FILE, 00664, -1, -1);
             FileUtils.setPermissions(XposedApp.ENABLED_MODULES_LIST_FILE, 00664, -1, -1);
 
-            if (showToast)
+            if (showToast) {
                 showToast(R.string.xposed_module_list_updated);
+            }
         } catch (IOException e) {
             Log.e(XposedApp.TAG, "cannot write " + MODULES_LIST_FILE, e);
             Toast.makeText(mApp, "cannot write " + MODULES_LIST_FILE + e, Toast.LENGTH_SHORT).show();
@@ -244,8 +253,9 @@ public final class ModuleUtil {
     }
 
     public void addListener(ModuleListener listener) {
-        if (!mListeners.contains(listener))
+        if (!mListeners.contains(listener)) {
             mListeners.add(listener);
+        }
     }
 
     public void removeListener(ModuleListener listener) {
@@ -253,6 +263,7 @@ public final class ModuleUtil {
     }
 
     public interface ModuleListener {
+
         /**
          * Called whenever one (previously or now) installed module has been
          * reloaded
@@ -265,7 +276,9 @@ public final class ModuleUtil {
         void onInstalledModulesReloaded(ModuleUtil moduleUtil);
     }
 
+
     public class InstalledModule {
+
         private static final int FLAG_FORWARD_LOCK = 1 << 29;
         public final String packageName;
         public final boolean isFramework;
@@ -312,8 +325,9 @@ public final class ModuleUtil {
         }
 
         public String getAppName() {
-            if (appName == null)
+            if (appName == null) {
                 appName = app.loadLabel(mPm).toString();
+            }
             return appName;
         }
 
@@ -326,8 +340,9 @@ public final class ModuleUtil {
                 } else if (descriptionRaw instanceof Integer) {
                     try {
                         int resId = (Integer) descriptionRaw;
-                        if (resId != 0)
+                        if (resId != 0) {
                             descriptionTmp = mPm.getResourcesForApplication(app).getString(resId).trim();
+                        }
                     } catch (Exception ignored) {
                     }
                 }
@@ -341,8 +356,9 @@ public final class ModuleUtil {
         }
 
         public Drawable getIcon() {
-            if (iconCache != null)
+            if (iconCache != null) {
                 return iconCache.newDrawable();
+            }
 
             Intent mIntent = new Intent(Intent.ACTION_MAIN);
             mIntent.addCategory(ModulesFragment.SETTINGS_CATEGORY);
@@ -350,10 +366,11 @@ public final class ModuleUtil {
             List<ResolveInfo> ris = mPm.queryIntentActivities(mIntent, 0);
 
             Drawable result;
-            if (ris == null || ris.size() <= 0)
+            if (ris == null || ris.size() <= 0) {
                 result = app.loadIcon(mPm);
-            else
+            } else {
                 result = ris.get(0).activityInfo.loadIcon(mPm);
+            }
             iconCache = result.getConstantState();
 
             return result;

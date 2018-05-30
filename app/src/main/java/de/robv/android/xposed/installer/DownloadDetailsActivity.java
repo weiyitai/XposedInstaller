@@ -84,11 +84,13 @@ public class DownloadDetailsActivity extends XposedBaseActivity implements Loade
 
             Boolean directDownload = getIntent().getBooleanExtra("direct_download", false);
             // Updates available => start on the versions page
-            if (mInstalledModule != null && mInstalledModule.isUpdate(sRepoLoader.getLatestVersion(mModule)) || directDownload)
+            if (mInstalledModule != null && mInstalledModule.isUpdate(sRepoLoader.getLatestVersion(mModule)) || directDownload) {
                 mPager.setCurrentItem(DOWNLOAD_VERSIONS);
+            }
 
-            if (Build.VERSION.SDK_INT >= 21)
+            if (Build.VERSION.SDK_INT >= 21) {
                 findViewById(R.id.fake_elevation).setVisibility(View.GONE);
+            }
 
         } else {
             setContentView(R.layout.activity_download_details_not_found);
@@ -115,8 +117,9 @@ public class DownloadDetailsActivity extends XposedBaseActivity implements Loade
 
     private String getModulePackageName() {
         Uri uri = getIntent().getData();
-        if (uri == null)
+        if (uri == null) {
             return null;
+        }
 
         String scheme = uri.getScheme();
         if (TextUtils.isEmpty(scheme)) {
@@ -125,8 +128,9 @@ public class DownloadDetailsActivity extends XposedBaseActivity implements Loade
             return uri.getSchemeSpecificPart();
         } else if (scheme.equals("http")) {
             List<String> segments = uri.getPathSegments();
-            if (segments.size() > 1)
+            if (segments.size() > 1) {
                 return segments.get(1);
+            }
         }
         return null;
     }
@@ -171,8 +175,9 @@ public class DownloadDetailsActivity extends XposedBaseActivity implements Loade
 
     @Override
     public void onSingleInstalledModuleReloaded(ModuleUtil moduleUtil, String packageName, InstalledModule module) {
-        if (packageName.equals(mPackageName))
+        if (packageName.equals(mPackageName)) {
             reload();
+        }
     }
 
     @Override

@@ -74,6 +74,7 @@ import static android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
 import static de.robv.android.xposed.installer.XposedApp.WRITE_EXTERNAL_PERMISSION;
 
 public class ModulesFragment extends ListFragment implements ModuleListener {
+
     public static final String SETTINGS_CATEGORY = "de.robv.android.xposed.category.MODULE_SETTINGS";
     public static final String PLAY_STORE_PACKAGE = "com.android.vending";
     public static final String PLAY_STORE_LINK = "https://play.google.com/store/apps/details?id=%s";
@@ -85,6 +86,7 @@ public class ModulesFragment extends ListFragment implements ModuleListener {
     private ModuleAdapter mAdapter = null;
     private PackageManager mPm = null;
     private Runnable reloadModules = new Runnable() {
+        @Override
         public void run() {
             mAdapter.setNotifyOnChange(false);
             mAdapter.clear();
@@ -196,8 +198,9 @@ public class ModulesFragment extends ListFragment implements ModuleListener {
 
         mClickedMenuItem = item;
 
-        if (checkPermissions())
+        if (checkPermissions()) {
             return false;
+        }
 
         switch (item.getItemId()) {
             case R.id.export_enabled_modules:
@@ -211,8 +214,9 @@ public class ModulesFragment extends ListFragment implements ModuleListener {
                 }
 
                 try {
-                    if (!targetDir.exists())
+                    if (!targetDir.exists()) {
                         targetDir.mkdir();
+                    }
 
                     FileInputStream in = new FileInputStream(listModules);
                     FileOutputStream out = new FileOutputStream(enabledModulesPath);
@@ -244,8 +248,9 @@ public class ModulesFragment extends ListFragment implements ModuleListener {
                 }
 
                 try {
-                    if (!targetDir.exists())
+                    if (!targetDir.exists()) {
                         targetDir.mkdir();
+                    }
 
                     FileWriter fw = new FileWriter(installedModulesPath);
                     BufferedWriter bw = new BufferedWriter(fw);
@@ -365,8 +370,9 @@ public class ModulesFragment extends ListFragment implements ModuleListener {
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         String packageName = (String) v.getTag();
-        if (packageName == null)
+        if (packageName == null) {
             return;
+        }
 
         if (packageName.equals(NOT_ACTIVE_NOTE_TAG)) {
             ((WelcomeActivity) getActivity()).switchFragment(0);
@@ -374,49 +380,55 @@ public class ModulesFragment extends ListFragment implements ModuleListener {
         }
 
         Intent launchIntent = getSettingsIntent(packageName);
-        if (launchIntent != null)
+        if (launchIntent != null) {
             startActivity(launchIntent);
-        else
+        } else {
             Toast.makeText(getActivity(),
                     getActivity().getString(R.string.module_no_ui),
                     Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
                                     ContextMenuInfo menuInfo) {
         InstalledModule installedModule = getItemFromContextMenuInfo(menuInfo);
-        if (installedModule == null)
+        if (installedModule == null) {
             return;
+        }
 
         menu.setHeaderTitle(installedModule.getAppName());
         getActivity().getMenuInflater().inflate(R.menu.context_menu_modules, menu);
 
-        if (getSettingsIntent(installedModule.packageName) == null)
+        if (getSettingsIntent(installedModule.packageName) == null) {
             menu.removeItem(R.id.menu_launch);
+        }
 
         try {
             String support = RepoDb
                     .getModuleSupport(installedModule.packageName);
-            if (NavUtil.parseURL(support) == null)
+            if (NavUtil.parseURL(support) == null) {
                 menu.removeItem(R.id.menu_support);
+            }
         } catch (RowNotFoundException e) {
             menu.removeItem(R.id.menu_download_updates);
             menu.removeItem(R.id.menu_support);
         }
 
         String installer = mPm.getInstallerPackageName(installedModule.packageName);
-        if (PLAY_STORE_LABEL != null && PLAY_STORE_PACKAGE.equals(installer))
+        if (PLAY_STORE_LABEL != null && PLAY_STORE_PACKAGE.equals(installer)) {
             menu.findItem(R.id.menu_play_store).setTitle(PLAY_STORE_LABEL);
-        else
+        } else {
             menu.removeItem(R.id.menu_play_store);
+        }
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         InstalledModule module = getItemFromContextMenuInfo(item.getMenuInfo());
-        if (module == null)
+        if (module == null) {
             return false;
+        }
 
         switch (item.getItemId()) {
             case R.id.menu_launch:
@@ -452,6 +464,8 @@ public class ModulesFragment extends ListFragment implements ModuleListener {
             case R.id.menu_uninstall:
                 startActivity(new Intent(Intent.ACTION_UNINSTALL_PACKAGE, Uri.fromParts("package", module.packageName, null)));
                 return true;
+            default:
+                break;
         }
 
         return false;
@@ -486,6 +500,7 @@ public class ModulesFragment extends ListFragment implements ModuleListener {
     }
 
     private class ModuleAdapter extends ArrayAdapter<InstalledModule> {
+
         public ModuleAdapter(Context context) {
             super(context, R.layout.list_item_module, R.id.title);
         }

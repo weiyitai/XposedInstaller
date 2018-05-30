@@ -3,6 +3,7 @@ package de.robv.android.xposed.installer;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -13,7 +14,9 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v13.app.FragmentCompat;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.FileProvider;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,11 +24,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
-import android.widget.ScrollView;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import com.afollestad.materialdialogs.MaterialDialog;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -33,19 +32,25 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Calendar;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import static de.robv.android.xposed.installer.XposedApp.WRITE_EXTERNAL_PERMISSION;
 
 public class LogsFragment extends Fragment {
 
     private File mFileErrorLog = new File(XposedApp.BASE_DIR + "log/error.log");
+    //    private File mFileErrorLog = new File(Environment.getExternalStorageDirectory() + "/1/", "error.log");
     private File mFileErrorLogOld = new File(
             XposedApp.BASE_DIR + "log/error.log.old");
-    private TextView mTxtLog;
-    private ScrollView mSVLog;
     private HorizontalScrollView mHSVLog;
     private MenuItem mClickedMenuItem = null;
+    private ProgressDialog mProgressDialog;
+    private LogsAdapter mAdapter;
+    private LinearLayoutManager mLayoutManager;
+    private boolean mScroll2Bottom;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -57,15 +62,25 @@ public class LogsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.tab_logs, container, false);
-        mTxtLog = (TextView) v.findViewById(R.id.txtLog);
-        mTxtLog.setTextIsSelectable(true);
-        mSVLog = (ScrollView) v.findViewById(R.id.svLog);
-        mHSVLog = (HorizontalScrollView) v.findViewById(R.id.hsvLog);
-        reloadErrorLog();
-/*
+///        mHSVLog = (HorizontalScrollView) v.findViewById(R.id.hsvLog);
+
+        RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.rv_log);
+        mAdapter = new LogsAdapter();
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setAdapter(mAdapter);
+
+        reloadErrorLog(true);
+
+        View reload = v.findViewById(R.id.reload);
         View scrollTop = v.findViewById(R.id.scroll_top);
         View scrollDown = v.findViewById(R.id.scroll_down);
-
+        reload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                reloadErrorLog(false);
+            }
+        });
         scrollTop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -78,7 +93,7 @@ public class LogsFragment extends Fragment {
                 scrollDown();
             }
         });
-*/
+
         return v;
     }
 
@@ -98,7 +113,7 @@ public class LogsFragment extends Fragment {
                 scrollDown();
                 break;
             case R.id.menu_refresh:
-                reloadErrorLog();
+                reloadErrorLog(false);
                 return true;
             case R.id.menu_send:
                 try {
@@ -112,75 +127,46 @@ public class LogsFragment extends Fragment {
             case R.id.menu_clear:
                 clear();
                 return true;
+            default:
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
 
     private void scrollTop() {
-        mSVLog.post(new Runnable() {
-            @Override
-            public void run() {
-                mSVLog.scrollTo(0, 0);
-            }
-        });
-        mHSVLog.post(new Runnable() {
-            @Override
-            public void run() {
-                mHSVLog.scrollTo(0, 0);
-            }
-        });
+        mLayoutManager.scrollToPosition(0);
     }
 
     private void scrollDown() {
-        mSVLog.post(new Runnable() {
-            @Override
-            public void run() {
-                mSVLog.scrollTo(0, mTxtLog.getHeight());
-            }
-        });
-        mHSVLog.post(new Runnable() {
-            @Override
-            public void run() {
-                mHSVLog.scrollTo(0, 0);
-            }
-        });
+        int itemCount = mAdapter.getItemCount();
+        Log.d("LogsFragment", "itemCount:" + itemCount);
+        mLayoutManager.scrollToPositionWithOffset(itemCount - 1, 0);
     }
 
-    private void reloadErrorLog() {
+    private void reloadErrorLog(boolean scroll) {
+        mScroll2Bottom = scroll;
+        long millis2 = System.currentTimeMillis();
         new LogsReader().execute(mFileErrorLog);
-        mSVLog.post(new Runnable() {
-            @Override
-            public void run() {
-                mSVLog.scrollTo(0, mTxtLog.getHeight());
-            }
-        });
-        mHSVLog.post(new Runnable() {
-            @Override
-            public void run() {
-                mHSVLog.scrollTo(0, 0);
-            }
-        });
+        final long millis3 = System.currentTimeMillis();
+        Log.d("LogsFragment", "reload>take:" + (millis3 - millis2));
     }
 
     private void clear() {
         try {
             new FileOutputStream(mFileErrorLog).close();
             mFileErrorLogOld.delete();
-            mTxtLog.setText(R.string.log_is_empty);
             Toast.makeText(getActivity(), R.string.logs_cleared,
                     Toast.LENGTH_SHORT).show();
-            reloadErrorLog();
+            reloadErrorLog(true);
         } catch (IOException e) {
             Toast.makeText(getActivity(), getResources().getString(R.string.logs_clear_failed) + "n" + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
     private void send() {
-        Uri uri = FileProvider.getUriForFile(getActivity(), "de.robv.android.xposed.installer.fileprovider", mFileErrorLog);
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
-        sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(save()));
         sendIntent.setType("application/html");
         startActivity(Intent.createChooser(sendIntent, getResources().getString(R.string.menuSend)));
     }
@@ -217,24 +203,20 @@ public class LogsFragment extends Fragment {
             Toast.makeText(getActivity(), R.string.sdcard_not_writable, Toast.LENGTH_LONG).show();
             return null;
         }
-
-        Calendar now = Calendar.getInstance();
-        String filename = String.format(
-                "xposed_%s_%04d%02d%02d_%02d%02d%02d.log", "error",
-                now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1,
-                now.get(Calendar.DAY_OF_MONTH), now.get(Calendar.HOUR_OF_DAY),
-                now.get(Calendar.MINUTE), now.get(Calendar.SECOND));
-
         File dir = getActivity().getExternalFilesDir(null);
 
-        if (!dir.exists()) dir.mkdir();
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
 
-        File targetFile = new File(dir, filename);
+        String format = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+
+        File targetFile = new File(dir, "xposed_" + format + ".log");
 
         try {
             FileInputStream in = new FileInputStream(mFileErrorLog);
             FileOutputStream out = new FileOutputStream(targetFile);
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[1024 * 8];
             int len;
             while ((len = in.read(buffer)) > 0) {
                 out.write(buffer, 0, len);
@@ -251,14 +233,14 @@ public class LogsFragment extends Fragment {
         }
     }
 
-    private class LogsReader extends AsyncTask<File, Integer, String> {
+    private class LogsReader extends AsyncTask<File, Integer, List<String>> {
 
         private static final int MAX_LOG_SIZE = 1000 * 1024; // 1000 KB
-        private MaterialDialog mProgressDialog;
 
         private long skipLargeFile(BufferedReader is, long length) throws IOException {
-            if (length < MAX_LOG_SIZE)
+            if (length < MAX_LOG_SIZE) {
                 return 0;
+            }
 
             long skipped = length - MAX_LOG_SIZE;
             long yetToSkip = skipped;
@@ -269,8 +251,9 @@ public class LogsFragment extends Fragment {
             int c;
             do {
                 c = is.read();
-                if (c == -1)
+                if (c == -1) {
                     break;
+                }
                 skipped++;
             } while (c != '\n');
 
@@ -280,46 +263,60 @@ public class LogsFragment extends Fragment {
 
         @Override
         protected void onPreExecute() {
-            mProgressDialog = new MaterialDialog.Builder(getActivity()).content(R.string.loading).progress(true, 0).show();
+            mProgressDialog = new ProgressDialog(getActivity());
+            mProgressDialog.setMessage(getString(R.string.loading));
+            mProgressDialog.show();
+//            mProgressDialog = new MaterialDialog.Builder(getActivity()).content(R.string.loading).progress(true, 0).show();
         }
 
         @Override
-        protected String doInBackground(File... log) {
+        protected List<String> doInBackground(File... log) {
             Thread.currentThread().setPriority(Thread.NORM_PRIORITY + 2);
-
-            StringBuilder llog = new StringBuilder(15 * 10 * 1024);
+            long millis = System.currentTimeMillis();
+            StringBuilder sb = new StringBuilder(1024 * 10);
+            List<String> list = new ArrayList<>();
             try {
                 File logfile = log[0];
                 BufferedReader br;
                 br = new BufferedReader(new FileReader(logfile));
                 long skipped = skipLargeFile(br, logfile.length());
                 if (skipped > 0) {
-                    llog.append("-----------------\n");
-                    llog.append("Log too long");
-                    llog.append("\n-----------------\n\n");
+                    sb.append("-----------------\n");
+                    sb.append("Log too long");
+                    sb.append("\n-----------------\n\n");
                 }
 
-                char[] temp = new char[1024];
-                int read;
+                char[] temp = new char[1024 * 8];
+                int read, c = 0;
                 while ((read = br.read(temp)) > 0) {
-                    llog.append(temp, 0, read);
+                    sb.append(temp, 0, read);
+                    sb.append(br.readLine());
+                    list.add(sb.toString());
+                    sb.setLength(0);
                 }
                 br.close();
+                long millis1 = System.currentTimeMillis();
+                Log.d("LogsReader", "doInBackground>take:" + (millis1 - millis));
             } catch (IOException e) {
-                llog.append("Cannot read log");
-                llog.append(e.getMessage());
+                sb.append("Cannot read log");
+                sb.append(e.getMessage());
             }
-
-            return llog.toString();
+            return list;
         }
 
         @Override
-        protected void onPostExecute(String llog) {
+        protected void onPostExecute(List<String> list) {
+            if (list.isEmpty()) {
+                list.add(getString(R.string.log_is_empty));
+            }
+            long millis = System.currentTimeMillis();
+            mAdapter.setData(list);
+            long millis1 = System.currentTimeMillis();
+            Log.d("LogsReader", "setData>take:" + (millis1 - millis));
+            if (mScroll2Bottom) {
+                scrollDown();
+            }
             mProgressDialog.dismiss();
-            mTxtLog.setText(llog);
-
-            if (llog.length() == 0)
-                mTxtLog.setText(R.string.log_is_empty);
         }
 
     }

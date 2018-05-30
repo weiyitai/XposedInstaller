@@ -9,6 +9,7 @@ import android.view.WindowManager;
 import de.robv.android.xposed.installer.util.ThemeUtil;
 
 public abstract class XposedBaseActivity extends AppCompatActivity {
+
     public int mTheme = -1;
 
     @Override

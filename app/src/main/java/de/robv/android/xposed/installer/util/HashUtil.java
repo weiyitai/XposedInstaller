@@ -47,8 +47,9 @@ public class HashUtil {
         StringBuilder sb = new StringBuilder();
         for (byte b : bytes) {
             int unsignedB = b & 0xff;
-            if (unsignedB < 0x10)
+            if (unsignedB < 0x10) {
                 sb.append("0");
+            }
             sb.append(Integer.toHexString(unsignedB));
         }
         return sb.toString();

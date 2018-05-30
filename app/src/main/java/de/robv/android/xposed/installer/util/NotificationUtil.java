@@ -27,9 +27,10 @@ public final class NotificationUtil {
     private static NotificationManager sNotificationManager;
 
     public static void init() {
-        if (sContext != null)
+        if (sContext != null) {
             throw new IllegalStateException(
                     "NotificationUtil has already been initialized");
+        }
 
         sContext = XposedApp.getInstance();
         sNotificationManager = (NotificationManager) sContext.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -58,8 +59,9 @@ public final class NotificationUtil {
                 .setSmallIcon(R.drawable.ic_notification)
                 .setColor(sContext.getResources().getColor(R.color.colorPrimary));
 
-        if (Build.VERSION.SDK_INT >= 21)
+        if (Build.VERSION.SDK_INT >= 21) {
             builder.setPriority(2);
+        }
 
         Intent iActivateAndReboot = new Intent(sContext, RebootReceiver.class);
         iActivateAndReboot.putExtra(RebootReceiver.EXTRA_ACTIVATE_MODULE, packageName);
@@ -113,8 +115,9 @@ public final class NotificationUtil {
                 .setSmallIcon(R.drawable.ic_notification)
                 .setColor(sContext.getResources().getColor(R.color.colorPrimary));
 
-        if (Build.VERSION.SDK_INT >= 21)
+        if (Build.VERSION.SDK_INT >= 21) {
             builder.setPriority(2);
+        }
 
         Intent iSoftReboot = new Intent(sContext, RebootReceiver.class);
         iSoftReboot.putExtra(RebootReceiver.EXTRA_SOFT_REBOOT, true);
@@ -158,7 +161,9 @@ public final class NotificationUtil {
                 moduleUtil.updateModulesList(false);
                 Toast.makeText(sContext, R.string.module_activated, Toast.LENGTH_SHORT).show();
 
-                if (intent.hasExtra(EXTRA_ACTIVATE_MODULE_AND_RETURN)) return;
+                if (intent.hasExtra(EXTRA_ACTIVATE_MODULE_AND_RETURN)) {
+                    return;
+                }
             }
 
             RootUtil rootUtil = new RootUtil();

@@ -29,8 +29,9 @@ public class DownloadDetailsSettingsFragment extends PreferenceFragment {
         super.onCreate(savedInstanceState);
 
         final Module module = mActivity.getModule();
-        if (module == null)
+        if (module == null) {
             return;
+        }
 
         final String packageName = module.packageName;
 

@@ -28,15 +28,17 @@ public class AssetUtil {
 
     public static File writeAssetToFile(AssetManager assets, String assetName, File targetFile, int mode) {
         try {
-            if (assets == null)
+            if (assets == null) {
                 assets = XposedApp.getInstance().getAssets();
+            }
             InputStream in = assets.open(assetName);
             writeStreamToFile(in, targetFile, mode);;
             return targetFile;
         } catch (IOException e) {
             Log.e(XposedApp.TAG, "could not extract asset", e);
-            if (targetFile != null)
+            if (targetFile != null) {
                 targetFile.delete();
+            }
 
             return null;
         }
@@ -57,8 +59,9 @@ public class AssetUtil {
     }
 
     public synchronized static void extractBusybox() {
-        if (BUSYBOX_FILE.exists())
+        if (BUSYBOX_FILE.exists()) {
             return;
+        }
 
         AssetManager assets = null;
         writeAssetToFile(assets, getBinariesFolder() + "busybox-xposed", BUSYBOX_FILE, 00700);

@@ -16,6 +16,7 @@ public abstract class OnlineLoader<T> extends Loader<T> {
     private static final ConnectivityManager sConMgr
             = (ConnectivityManager) XposedApp.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
 
+    @Override
     protected boolean shouldUpdate() {
         long now = System.currentTimeMillis();
         long lastUpdateCheck = mPref.getLong(mPrefKeyLastUpdateCheck, 0);

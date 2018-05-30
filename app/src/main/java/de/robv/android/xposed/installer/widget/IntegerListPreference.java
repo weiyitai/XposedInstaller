@@ -16,8 +16,9 @@ public class IntegerListPreference extends MaterialListPreference {
     }
 
     public static int getIntValue(String value) {
-        if (value == null)
+        if (value == null) {
             return 0;
+        }
 
         return (int) ((value.startsWith("0x"))
                 ? Long.parseLong(value.substring(2), 16)
@@ -40,8 +41,9 @@ public class IntegerListPreference extends MaterialListPreference {
     protected String getPersistedString(String defaultReturnValue) {
         SharedPreferences pref = getPreferenceManager().getSharedPreferences();
         String key = getKey();
-        if (!shouldPersist() || !pref.contains(key))
+        if (!shouldPersist() || !pref.contains(key)) {
             return defaultReturnValue;
+        }
 
         return String.valueOf(pref.getInt(key, 0));
     }

@@ -1,50 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout android:id="@+id/container"
-                xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="?attr/actionBarSize">
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="?attr/actionBarSize">
 
-    <ScrollView
-        android:id="@+id/svLog"
+    <HorizontalScrollView
+        android:id="@+id/hsvLog"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-        <HorizontalScrollView
-            android:id="@+id/hsvLog"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_log"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 
-            <TextView
-                android:id="@+id/txtLog"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:textIsSelectable="true"/>
-        </HorizontalScrollView>
+    </HorizontalScrollView>
 
-    </ScrollView>
-    <!--
-        <android.support.design.widget.FloatingActionButton
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            app:backgroundTint="#fff"
-            android:id="@+id/scroll_top"
-            android:src="@drawable/ic_scroll_top"
-            android:layout_marginBottom="72dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignLeft="@+id/scroll_down"
-            android:layout_alignStart="@+id/scroll_down"/>
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/scroll_down"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_scroll_down"
+        app:backgroundTint="#fff"/>
 
-        <android.support.design.widget.FloatingActionButton
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            app:backgroundTint="#fff"
-            android:id="@+id/scroll_down"
-            android:layout_margin="16dp"
-            android:src="@drawable/ic_scroll_down"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"/>
-    -->
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/scroll_top"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_above="@+id/scroll_down"
+        android:layout_alignLeft="@+id/scroll_down"
+        android:layout_alignStart="@+id/scroll_down"
+        android:layout_marginBottom="6dp"
+        android:src="@drawable/ic_scroll_top"
+        app:backgroundTint="#fff"/>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/reload"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_above="@+id/scroll_top"
+        android:layout_alignLeft="@+id/scroll_down"
+        android:layout_alignStart="@+id/scroll_down"
+        android:layout_marginBottom="16dp"
+        android:src="@drawable/ic_menu_refresh"
+        app:backgroundTint="#fff"/>
+
+
 </RelativeLayout>

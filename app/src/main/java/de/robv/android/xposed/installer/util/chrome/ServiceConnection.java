@@ -21,14 +21,16 @@ public class ServiceConnection extends CustomTabsServiceConnection {
     @Override
     public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
         ServiceConnectionCallback connectionCallback = mConnectionCallback.get();
-        if (connectionCallback != null)
+        if (connectionCallback != null) {
             connectionCallback.onServiceConnected(client);
+        }
     }
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
         ServiceConnectionCallback connectionCallback = mConnectionCallback.get();
-        if (connectionCallback != null)
+        if (connectionCallback != null) {
             connectionCallback.onServiceDisconnected();
+        }
     }
 }

@@ -94,6 +94,7 @@ public class RootUtil {
     };
 
     private final Shell.OnCommandLineListener mStdoutListener = new Shell.OnCommandLineListener() {
+        @Override
         public void onLine(String line) {
             if (mCallback != null) {
                 mCallback.onLine(line);
